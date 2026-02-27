@@ -1,0 +1,7 @@
+@import "tailwindcss";
+.exo{
+  font-family: "Exo", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: <weight>;
+  font-style: normal;
+}
