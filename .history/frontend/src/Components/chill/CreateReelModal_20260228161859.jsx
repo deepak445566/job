@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-
-import { useAppContext } from "../../context/AppContextProvider";
+import axios from "axios";
 
 function CreateReelModal({ isOpen, onClose, onSuccess }) {
     const { axios } = useAppContext();

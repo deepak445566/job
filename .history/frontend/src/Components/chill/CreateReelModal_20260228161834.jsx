@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
-
-import { useAppContext } from "../../context/AppContextProvider";
+import axios from "axios";
 
 function CreateReelModal({ isOpen, onClose, onSuccess }) {
-    const { axios } = useAppContext();
+  const 
   const [caption, setCaption] = useState("");
   const [video, setVideo] = useState(null);
   const [videoPreview, setVideoPreview] = useState("");
