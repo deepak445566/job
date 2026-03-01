@@ -88,7 +88,12 @@ function ChillDashboard() {
     fetchReels();
   }, []);
 
- 
+  // =========================
+  // AUTO PLAY FEATURE
+  // =========================
+// =========================
+// AUTO PLAY FEATURE (FIXED)
+// =========================
 useEffect(() => {
   if (!reels.length || !feedRef.current) return;
 

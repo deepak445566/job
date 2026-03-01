@@ -88,56 +88,10 @@ function ChillDashboard() {
     fetchReels();
   }, []);
 
- 
-useEffect(() => {
-  if (!reels.length || !feedRef.current) return;
+  // =========================
+  // AUTO PLAY FEATURE
+  // =========================
 
-  if (observerRef.current) {
-    observerRef.current.disconnect();
-  }
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      if (showComments || uploadModal) return;
-
-      entries.forEach((entry) => {
-        const video = entry.target;
-        const index = videoRefs.current.indexOf(video);
-
-        if (entry.isIntersecting) {
-          // Pause all other videos
-          videoRefs.current.forEach((v, i) => {
-            if (v && i !== index) v.pause();
-          });
-
-          // Play only if paused (IMPORTANT FIX)
-          if (video.paused) {
-            video
-              .play()
-              .then(() => {
-                setCurrentVideoIndex(index);
-              })
-              .catch(() => {});
-          }
-        }
-      });
-    },
-    {
-      root: feedRef.current,
-      threshold: 0.75,
-    }
-  );
-
-  videoRefs.current.forEach((video) => {
-    if (video) observer.observe(video);
-  });
-
-  observerRef.current = observer;
-
-  return () => {
-    observer.disconnect();
-  };
-}, [reels, showComments, uploadModal]);
 
   // Separate effect for mute updates
   useEffect(() => {

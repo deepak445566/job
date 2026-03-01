@@ -88,56 +88,75 @@ function ChillDashboard() {
     fetchReels();
   }, []);
 
- 
-useEffect(() => {
-  if (!reels.length || !feedRef.current) return;
+  // =========================
+  // AUTO PLAY FEATURE
+  // =========================
+  useEffect(() => {
+    if (!reels.length || !feedRef.current) return;
 
-  if (observerRef.current) {
-    observerRef.current.disconnect();
-  }
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      if (showComments || uploadModal) return;
+    const options = {
+      root: feedRef.current,
+      rootMargin: "0px",
+      threshold: 0.7,
+    };
 
+    const handleIntersection = (entries) => {
       entries.forEach((entry) => {
         const video = entry.target;
-        const index = videoRefs.current.indexOf(video);
-
+        const videoIndex = videoRefs.current.indexOf(video);
+        
         if (entry.isIntersecting) {
-          // Pause all other videos
           videoRefs.current.forEach((v, i) => {
-            if (v && i !== index) v.pause();
+            if (v && i !== videoIndex) {
+              v.pause();
+            }
           });
 
-          // Play only if paused (IMPORTANT FIX)
-          if (video.paused) {
-            video
-              .play()
+          const playPromise = video.play();
+          
+          if (playPromise !== undefined) {
+            playPromise
               .then(() => {
-                setCurrentVideoIndex(index);
+                setCurrentVideoIndex(videoIndex);
               })
-              .catch(() => {});
+              .catch(error => {
+                console.log("Autoplay failed:", error);
+              });
           }
+        } else {
+          video.pause();
         }
       });
-    },
-    {
-      root: feedRef.current,
-      threshold: 0.75,
+    };
+
+    observerRef.current = new IntersectionObserver(handleIntersection, options);
+
+    videoRefs.current.forEach((video) => {
+      if (video) {
+        observerRef.current.observe(video);
+      }
+    });
+
+    if (videoRefs.current[0]) {
+      videoRefs.current[0].play().catch(e => console.log("First video autoplay failed:", e));
     }
-  );
 
-  videoRefs.current.forEach((video) => {
-    if (video) observer.observe(video);
-  });
-
-  observerRef.current = observer;
-
-  return () => {
-    observer.disconnect();
-  };
-}, [reels, showComments, uploadModal]);
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+      videoRefs.current.forEach((video) => {
+        if (video) {
+          video.pause();
+          video.currentTime = 0;
+        }
+      });
+    };
+  }, [reels]);
 
   // Separate effect for mute updates
   useEffect(() => {
